@@ -1,6 +1,9 @@
 import logo from "./logo.svg";
 import "./App.css";
-import { HashRouter } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import Settings from "./pages/Settings/Settings";
+import SendJSON from "./pages/SendJSON/SendJSON";
 import SideBar from "./components/SideBar";
 
 function App() {
@@ -8,6 +11,11 @@ function App() {
     <div className="flex">
       <HashRouter>
         <SideBar />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/send" element={<SendJSON />} />
+        </Routes>
       </HashRouter>
     </div>
   );
