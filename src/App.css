@@ -1,38 +1,124 @@
-.App {
-  text-align: center;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+@layer components {
+  .sidebar-icon {
+    @apply relative flex items-center justify-center
+          h-12 w-12 mt-2 mb-2 mx-auto
+          bg-zinc-800 text-green-500
+          hover:bg-green-500 hover:text-zinc-800
+          rounded-3xl hover:rounded-xl
+          transition-all;
+  }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+  .sidebar-icon-active {
+    @apply relative flex items-center justify-center
+          h-12 w-12 mt-2 mb-2 mx-auto
+        bg-green-500 hover:text-zinc-800
+          rounded-3xl hover:rounded-xl
+          transition-all;
+  }
+
+  .sidebar-tooltip {
+    @apply absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md
+    text-white bg-zinc-900 
+    text-xs font-bold 
+    transition-all duration-100 scale-0 origin-left z-10;
+  }
+
+  .add-device {
+    @apply relative flex items-center justify-center
+    h-12 w-12 mt-2 mb-2 mx-auto
+  bg-green-500 hover:text-zinc-800
+    rounded-3xl hover:rounded-xl
+    transition-all;
+  }
+
+  .UDL-buttons {
+    @apply relative flex items-center justify-center
+    h-12 w-12 mt-2 mb-2 mx-auto
+  bg-green-500 hover:bg-green-800 text-zinc-800 hover:text-green-500
+    rounded-3xl hover:rounded-xl
+    transition-all;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 1em;
+}
+
+.monaco-editor .overflow-guard {
+  position: absolute;
+  z-index: 0 !important;
+}
+
+.terminal {
+  white-space: pre-line;
+  color: white;
+  height: 340px;
+  width: 600px;
+  overflow-y: scroll;
+  overflow-x: auto;
+}
+
+.terminal::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+.terminal::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 100vw;
+}
+.terminal::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 100vw;
+}
+
+.terminalInput {
+  border: none;
+  outline: none;
+  margin: none;
+  padding: none;
+  background-color: transparent;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.UDL {
+  white-space: pre-line;
+  color: white;
+  height: 340px;
+  width: 600px;
+  overflow-y: scroll;
+  overflow-x: auto;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.UDL::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+.UDL::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 100vw;
+}
+.UDL::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 100vw;
+}
+
+#check-box-1:checked ~ .check-1 {
+  @apply text-opacity-100;
+  animation: check-animation 0.5s 1;
+}
+
+@keyframes check-animation {
+  0%,
+  100% {
+    @apply transform scale-100;
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    @apply transform scale-150;
   }
 }
