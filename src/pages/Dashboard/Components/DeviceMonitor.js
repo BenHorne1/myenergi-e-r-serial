@@ -2,6 +2,7 @@ import { useEffect, useState, memo } from "react";
 import ToggleCheckbox from "../../../components/ToggleCheckbox";
 import { useDispatch } from "react-redux";
 import { toggleTerminal } from "../../../redux/action";
+import Terminal from "./Widgets/Terminal";
 
 // Optional filters to limit what serial ports are returned
 let filters = [{}];
@@ -89,6 +90,11 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
             defaultToggle={thisDevice.showGraph}
           />
         </div>
+      </div>
+      <div className="flex flex-wrap">
+        {thisDevice.showTerminal && (
+          <Terminal id={id} thisDevice={thisDevice} />
+        )}
       </div>
     </>
   );
