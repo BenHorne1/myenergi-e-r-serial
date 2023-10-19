@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { app, BrowserWindow } = require("electron");
 const path = require("node:path")
 
@@ -20,6 +21,62 @@ function createWindow() {
       preload,
     },
   });
+
+   // Serial Port
+
+   mainWindow.webContents.session.on(
+    "select-serial-port",
+    (event, portList, webContents, callback) => {
+      console.log("SELECT-SERIAL-PORT FIRED WITH", portList);
+
+      mainWindow.webContents.send("port:list", portList);
+      //Display some type of dialog so that the user can pick a port
+      // dialog.showMessageBoxSync({
+
+      // });
+      // event.preventDefault();
+
+      let selectedPort = portList.find((device) => {
+        // Automatically pick a specific device instead of prompting user
+        //return device.vendorId == 0x2341 && device.productId == 0x0043;
+
+        // Automatically return the first device
+        return true;
+      });
+      if (!selectedPort) {
+        callback("");
+      } else {
+        callback(selectedPort.portId);
+      }
+    }
+  );
+
+  mainWindow.webContents.session.on("serial-port-added", (event, port) => {
+    console.log("serial-port-added FIRED WITH", port);
+    event.preventDefault();
+
+    //mainWindow.webContents.send()
+  });
+
+  mainWindow.webContents.session.on("serial-port-removed", (event, port) => {
+    console.log("serial-port-removed FIRED WITH", port);
+    event.preventDefault();
+  });
+
+  mainWindow.webContents.session.on("select-serial-port-cancelled", () => {
+    console.log("select-serial-port-cancelled FIRED.");
+  });
+
+  mainWindow.webContents.session.setPermissionCheckHandler(
+    (webContents, permission, requestingOrigin, details) => {
+      // This permission check handler is not needed by default but available if you want to limit serial requests
+      console.log(`In PermissionCheckHandler`);
+      console.log(`Webcontents url: ${webContents.getURL()}`);
+      console.log(`Permission: ${permission}`);
+      console.log(`Requesting Origin: ${requestingOrigin}`, details);
+      return true;
+    }
+  );
 
   //load the index.html from a url
   mainWindow.loadURL("http://localhost:3000");
