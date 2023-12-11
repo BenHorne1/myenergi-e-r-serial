@@ -1,4 +1,4 @@
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import ToggleCheckbox from "../../../components/ToggleCheckbox";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTerminal, updateTerminal } from "../../../redux/action";
@@ -10,15 +10,14 @@ let port;
 let buffer = "";
 let newTerminalOutput;
 
-
-
 const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
   // console.log("this device", thisDevice);
 
   const dispatch = useDispatch();
   //const thisDevice = useSelector((state) => state.deviceList[id]);
 
-  // const [newTerminalOutput, setNewTerminalOutput] = useState(thisDevice)
+  const [, updateState] = useState();
+  const forceUpdate = useCallback(() => updateState({}), []);
 
   const [listOfPorts, setListOfPorts] = useState([]);
   const [selected, setSelected] = useState();
@@ -95,7 +94,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
         console.log("enter pressed");
         let obj = JSON.parse(buffer);
         console.log("PARSED :", obj);
-
+        forceUpdate()
         SplitJSON(obj);
         buffer = "";
       }

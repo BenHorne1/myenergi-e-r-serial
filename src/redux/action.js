@@ -24,3 +24,9 @@ export const addDevice = (value) => ({
     type: "SET_TEXT_EDITOR_VARIABLE",
     payload: value,
   });
+
+  export const setConfig = (key, value) => ({
+    type: "SET_CONFIG",
+    payload: { key, value },
+  });
+  

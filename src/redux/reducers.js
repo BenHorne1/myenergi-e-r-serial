@@ -91,6 +91,16 @@ const rootReducer = (state = initialState, action) => {
         textEditorValue: action.payload,
       };
 
+    // settings
+    case "SET_CONFIG":
+      return {
+        ...state,
+        config: {
+          ...state.config,
+          [action.payload.key]: action.payload.value,
+        },
+      };
+
     default:
       return state;
   }
