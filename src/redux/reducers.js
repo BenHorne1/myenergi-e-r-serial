@@ -85,6 +85,12 @@ const rootReducer = (state = initialState, action) => {
         deviceList: updatedTerminalValue,
       };
 
+    case "SET_TEXT_EDITOR_VARIABLE":
+      return {
+        ...state,
+        textEditorValue: action.payload,
+      };
+
     default:
       return state;
   }

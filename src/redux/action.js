@@ -19,3 +19,8 @@ export const addDevice = (value) => ({
       payload: { terminalID, newTerminalValue },
     };
   };
+
+  export const setTextEditorValue = (value) => ({
+    type: "SET_TEXT_EDITOR_VARIABLE",
+    payload: value,
+  });

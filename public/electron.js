@@ -12,7 +12,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     autoHideMenuBar: true,
     title: "myenergy Serial Port mode",
-    width: 800,
+    width: 1500,
     height: 600,
     webPreferences: {
       nodeIntegration: true,

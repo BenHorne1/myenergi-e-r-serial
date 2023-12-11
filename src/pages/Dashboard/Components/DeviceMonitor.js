@@ -1,18 +1,29 @@
 import { useEffect, useState, memo } from "react";
 import ToggleCheckbox from "../../../components/ToggleCheckbox";
-import { useDispatch } from "react-redux";
-import { toggleTerminal } from "../../../redux/action";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleTerminal, updateTerminal } from "../../../redux/action";
 import Terminal from "./Widgets/Terminal";
 
 // Optional filters to limit what serial ports are returned
 let filters = [{}];
 let port;
+let buffer = "";
+let newTerminalOutput;
+
+
 
 const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
+  // console.log("this device", thisDevice);
+
   const dispatch = useDispatch();
+  //const thisDevice = useSelector((state) => state.deviceList[id]);
+
+  // const [newTerminalOutput, setNewTerminalOutput] = useState(thisDevice)
 
   const [listOfPorts, setListOfPorts] = useState([]);
   const [selected, setSelected] = useState();
+
+  useEffect(() => {});
 
   window.indexBridge.once("port:list", (e, options) => {
     setListOfPorts(e);
@@ -23,6 +34,88 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
   const handleTerminalToggle = (isChecked) => {
     dispatch(toggleTerminal(id, isChecked));
   };
+
+  // Requests all available serial ports to connect to
+  async function listSerialDevices() {
+    await navigator.serial.requestPort();
+  }
+
+  // Connect to selected serial port
+  async function ConnectButton() {
+    console.log("connecting");
+
+    // - Request connection to port using, selection chosen thru filters.
+    try {
+      port = await navigator.serial.requestPort({ filters });
+      await port.open({ baudRate: 9600 });
+      console.log("port", port);
+
+      if ("serial" in navigator) {
+        connectMSG();
+        listenForJSON();
+      }
+    } catch {
+      alert("Serial Connection Failed");
+    }
+    //listenToPort();
+  }
+
+  // Disconnect
+  async function disconnect() {}
+
+  async function connectMSG() {
+    console.log("send");
+    try {
+      const writer = port.writable.getWriter();
+      const data = new Uint8Array([67, 79, 78, 78, 69, 67, 84, 69, 68]);
+      await writer.write(data);
+      writer.releaseLock();
+    } catch {
+      alert("no device is connected");
+    }
+  }
+
+  async function listenForJSON() {
+    console.log("Listening for JSON packets");
+
+    // Listen for data on the serial port
+    const textDecoder = new TextDecoderStream();
+    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+    const reader = textDecoder.readable.getReader();
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) {
+        // allow the serial port to be closed later.
+        reader.releaseLock();
+        break;
+      }
+      buffer += value;
+      if (value === String.fromCharCode(13)) {
+        console.log("enter pressed");
+        let obj = JSON.parse(buffer);
+        console.log("PARSED :", obj);
+
+        SplitJSON(obj);
+        buffer = "";
+      }
+    }
+  }
+
+  function SplitJSON(obj) {
+    const time = new Date();
+    const timeStr = time.toLocaleTimeString();
+
+    console.log("splitting json");
+    if (obj.Terminal !== undefined) {
+      console.log("this device", thisDevice); // this device isn't being updated
+      // I need to find a way to update thisDevice every time a new serial package is received.
+      // doesnt update after serial connects...
+      newTerminalOutput =
+        thisDevice.terminal + timeStr + " $ " + obj.Terminal + "\n";
+      dispatch(updateTerminal(id, newTerminalOutput));
+    }
+  }
 
   return (
     <>
@@ -59,7 +152,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
 
         <button
           className="mr-2 bg-green-400 px-3 py-2 rounded-md text-sm font-medium no-underline text-black hover:bg-green-600 hover:text-white shadow-lg "
-          onClick={ConnectButton}
+          onClick={() => ConnectButton()}
         >
           Connect
         </button>
@@ -100,32 +193,23 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
   );
 });
 
-// Requests all available serial ports to connect to
-async function listSerialDevices() {
-  await navigator.serial.requestPort();
-}
-
-// Connect to selected serial port
-async function ConnectButton() {
-  console.log("connecting");
-
-  // - Request connection to port using, selection chosen thru filters.
-  try {
-    port = await navigator.serial.requestPort({ filters });
-    await port.open({ baudRate: 9600 });
-    console.log(port);
-
-    if ("serial" in navigator) {
-      //connectMSG();
-      //listenForJSON();
-    }
-  } catch {
-    alert("Serial Connection Failed");
-  }
-  //listenToPort();
-}
-
-// Disconnect
-async function disconnect() {}
-
 export default DeviceMonitor;
+
+// Send Msg over serial
+export async function SendMsg(msg) {
+  console.log(msg);
+  let charCodeArr = [];
+  for (let i = 0; i < msg.length; i++) {
+    let code = msg.charCodeAt(i);
+    charCodeArr.push(code);
+  }
+  // send data
+  try {
+    const writer = port.writable.getWriter();
+    const data = new Uint8Array(charCodeArr);
+    await writer.write(data);
+    writer.releaseLock();
+  } catch {
+    // alert("error")
+  }
+}
