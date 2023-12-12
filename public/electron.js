@@ -1,6 +1,6 @@
 const fs = require("fs");
-const { app, BrowserWindow } = require("electron");
-const path = require("node:path")
+const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("node:path");
 
 const isDevMode = process.env.NODE_ENV !== "production";
 
@@ -22,9 +22,9 @@ function createWindow() {
     },
   });
 
-   // Serial Port
+  // Serial Port
 
-   mainWindow.webContents.session.on(
+  mainWindow.webContents.session.on(
     "select-serial-port",
     (event, portList, webContents, callback) => {
       console.log("SELECT-SERIAL-PORT FIRED WITH", portList);
@@ -110,3 +110,58 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// Update config.json
+
+function getConfigFilePath() {
+  const userDataPath = app.getPath("userData");
+  return path.join(userDataPath, "config.json");
+}
+
+function saveConfig(config) {
+  const configPath = getConfigFilePath();
+  console.log("User data path", configPath);
+  config = { config };
+  saveLocation = config.config.saveLocation;
+  console.log("saving config", config);
+
+  try {
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
+    console.log("Configuration file saved successully");
+  } catch (error) {
+    console.error("Error sacing configuration fileL", error);
+  }
+}
+
+function loadConfig() {
+  const configPath = getConfigFilePath();
+
+  try {
+    const data = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    saveLocation = data.config.saveLocation;
+    return data;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      // Handle the case where the file doesn't exist (e.g., provide default config)
+      return {};
+    }
+    console.error("Error loading configuration file: ", error);
+    return {};
+  }
+}
+
+ipcMain.on("SAVE_CONFIG", (e, data) => {
+  saveConfig(data)
+})
+
+ipcMain.handle("loadConfig", () => {
+  try {
+    console.log("INVOKE!!!!!!!!!!!!!");
+
+    const data = loadConfig();
+    console.log("loading config data ", data);
+    return data
+  } catch (error) {
+    return error.message;
+  }
+});

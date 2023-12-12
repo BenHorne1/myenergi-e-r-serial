@@ -7,7 +7,13 @@ import CSVSettings from "./Components/CSVSettings";
 export default function Settings() {
   let config = useSelector((state) => state.config);
 
-  function Save() {}
+  function Save() {
+    window.indexBridge.send("SAVE_CONFIG", {
+      SaveLocation: config.SaveLocation,
+    });
+
+    //window.indexBridge.send("UDP:SAVELOCATION", {});
+  }
 
   return (
     <div className="ml-16 min-h-screen min-w-full bg-zinc-700 text-white">
