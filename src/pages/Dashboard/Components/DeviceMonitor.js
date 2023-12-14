@@ -1,8 +1,13 @@
 import { useEffect, useState, memo, useCallback } from "react";
 import ToggleCheckbox from "../../../components/ToggleCheckbox";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleTerminal, updateTerminal } from "../../../redux/action";
+import {
+  toggleLog,
+  toggleTerminal,
+  updateTerminal,
+} from "../../../redux/action";
 import Terminal from "./Widgets/Terminal";
+import Log from "./Widgets/Log";
 
 // Optional filters to limit what serial ports are returned
 let filters = [{}];
@@ -32,6 +37,11 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
   // handlers for show widgets
   const handleTerminalToggle = (isChecked) => {
     dispatch(toggleTerminal(id, isChecked));
+  };
+
+  const handleLogToggle = (isChecked) => {
+    console.log("toggle log", isChecked);
+    dispatch(toggleLog(id, isChecked));
   };
 
   // Requests all available serial ports to connect to
@@ -94,7 +104,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
         console.log("enter pressed");
         let obj = JSON.parse(buffer);
         console.log("PARSED :", obj);
-        forceUpdate()
+        forceUpdate();
         SplitJSON(obj);
         buffer = "";
       }
@@ -110,9 +120,9 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
       console.log("this device", thisDevice); // this device isn't being updated
       // I need to find a way to update thisDevice every time a new serial package is received.
       // doesnt update after serial connects...
-      newTerminalOutput =
-        thisDevice.terminal + timeStr + " $ " + obj.Terminal + "\n";
-      dispatch(updateTerminal(id, newTerminalOutput));
+      // newTerminalOutput =
+      //   thisDevice.terminal + timeStr + " $ " + obj.Terminal + "\n";
+      dispatch(updateTerminal(id, timeStr + " $ " + obj.Terminal + "\n"));
     }
   }
 
@@ -168,7 +178,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
           />
           &ensp;Log:&ensp;
           <ToggleCheckbox
-            // onToggle={handleLogToggle}
+            onToggle={handleLogToggle}
             defaultToggle={thisDevice.showLog}
           />
           &ensp;Custom Display:&ensp;
@@ -187,6 +197,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
         {thisDevice.showTerminal && (
           <Terminal id={id} thisDevice={thisDevice} />
         )}
+        {thisDevice.showLog && <Log id={id} thisDevice={thisDevice} />}
       </div>
     </>
   );

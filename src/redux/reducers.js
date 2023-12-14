@@ -33,7 +33,7 @@ const initialState = {
       IPAddress: "Not",
       port: "Connected",
       serial: "Insert Serial Number",
-      terminal: "",
+      terminal: [],
       log: "",
       UDL: displayMatrix,
       showTerminal: true,
@@ -76,13 +76,43 @@ const rootReducer = (state = initialState, action) => {
       const { terminalID, newTerminalValue } = action.payload;
       const updatedTerminalValue = state.deviceList.map((device) => {
         if (device.id === terminalID) {
-          return { ...device, terminal: newTerminalValue };
+          // return { ...device, terminal: newTerminalValue };
+          return {
+            ...device,
+            terminal: [...device.terminal, newTerminalValue],
+          };
         }
         return device;
       });
       return {
         ...state,
         deviceList: updatedTerminalValue,
+      };
+
+    case "TOGGLE_LOG":
+      const { LogToggleId, newLogToggleState } = action.payload;
+      const updatedLogToggle = state.deviceList.map((device) => {
+        if (device.id === LogToggleId) {
+          return { ...device, showLog: newLogToggleState };
+        }
+        return device;
+      });
+      return {
+        ...state,
+        deviceList: updatedLogToggle,
+      };
+
+    case "UPDATE_LOG":
+      const { LogId, newLogState } = action.payload;
+      const updatedLog = state.deviceList.map((device) => {
+        if (device.id === LogId) {
+          return { ...device, log: newLogState };
+        }
+        return device;
+      });
+      return {
+        ...state,
+        deviceList: updatedLog,
       };
 
     case "SET_TEXT_EDITOR_VARIABLE":

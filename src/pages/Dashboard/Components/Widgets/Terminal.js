@@ -37,11 +37,11 @@ const Terminal = ({ id, thisDevice }) => {
                 break;
               default:
                 const time = new Date();
-                const timeStr = time.toLocaleDateString();
-                newOutput =
-                  thisDevice.terminal + timeStr + " $ " + input + "\n";
+                const timeStr = time.toLocaleTimeString();
+                // newOutput =
+                //   thisDevice.terminal + timeStr + " $ " + input + "\n";
                 setInput("");
-                dispatch(updateTerminal(thisDevice.id, newOutput));
+                dispatch(updateTerminal(thisDevice.id, timeStr + " $ " + input + "\n"));
 
                 // send over serial
                 SendMsg(input);

@@ -20,6 +20,20 @@ export const addDevice = (value) => ({
     };
   };
 
+  export const toggleLog = (LogToggleId, newLogToggleState) => {
+    return {
+      type: "TOGGLE_LOG",
+      payload: { LogToggleId, newLogToggleState },
+    };
+  };
+  
+  export const updateLog = (LogId, newLogState) => {
+    return {
+      type: "UPDATE_LOG",
+      payload: { LogId, newLogState },
+    };
+  };
+
   export const setTextEditorValue = (value) => ({
     type: "SET_TEXT_EDITOR_VARIABLE",
     payload: value,
