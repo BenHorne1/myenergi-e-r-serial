@@ -34,7 +34,7 @@ const initialState = {
       port: "Connected",
       serial: "Insert Serial Number",
       terminal: [],
-      log: "",
+      log: [],
       UDL: displayMatrix,
       showTerminal: true,
       showLog: false,
@@ -106,7 +106,11 @@ const rootReducer = (state = initialState, action) => {
       const { LogId, newLogState } = action.payload;
       const updatedLog = state.deviceList.map((device) => {
         if (device.id === LogId) {
-          return { ...device, log: newLogState };
+          // return { ...device, log: newLogState };
+          return {
+            ...device,
+            log: [...device.log, newLogState],
+          };
         }
         return device;
       });
