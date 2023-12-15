@@ -2,13 +2,16 @@ import { useEffect, useState, memo, useCallback } from "react";
 import ToggleCheckbox from "../../../components/ToggleCheckbox";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  toggleGraph,
   toggleLog,
   toggleTerminal,
+  updateGraph,
   updateLog,
   updateTerminal,
 } from "../../../redux/action";
 import Terminal from "./Widgets/Terminal";
 import Log from "./Widgets/Log";
+import GraphWindow from "./Widgets/Graph/GraphWindow";
 
 // Optional filters to limit what serial ports are returned
 let filters = [{}];
@@ -41,8 +44,12 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
   };
 
   const handleLogToggle = (isChecked) => {
-    console.log("toggle log", isChecked);
     dispatch(toggleLog(id, isChecked));
+  };
+
+  const handleGraphToggle = (isChecked) => {
+    console.log("Graph toggle");
+    dispatch(toggleGraph(id, isChecked));
   };
 
   // Requests all available serial ports to connect to
@@ -129,6 +136,12 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
     if (obj.Log !== undefined) {
       dispatch(updateLog(id, timeStr + " >> " + obj.Log + "\n"));
     }
+
+    // update graph
+    if (obj.Data !== undefined) {
+      dispatch(updateGraph(id, obj.Data));
+      
+    }
   }
 
   return (
@@ -193,7 +206,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
           />
           &ensp;Graph:&ensp;
           <ToggleCheckbox
-            // onToggle={handleGraphToggle}
+            onToggle={handleGraphToggle}
             defaultToggle={thisDevice.showGraph}
           />
         </div>
@@ -203,6 +216,9 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
           <Terminal id={id} thisDevice={thisDevice} />
         )}
         {thisDevice.showLog && <Log id={id} thisDevice={thisDevice} />}
+        {thisDevice.showGraph && (
+          <GraphWindow id={id} thisDevice={thisDevice} />
+        )}
       </div>
     </>
   );

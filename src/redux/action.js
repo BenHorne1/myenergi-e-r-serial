@@ -34,6 +34,25 @@ export const addDevice = (value) => ({
     };
   };
 
+  export const toggleGraph = (graphID, newGraphState) => {
+    return {
+      type: "TOGGLE_GRAPH",
+      payload: { graphID, newGraphState },
+    };
+  };
+  
+  export const updateGraphRange = (graphRangeID, newGraphRange) => {
+    return {
+      type: "CHANGE_GRAPH_RANGE",
+      payload: { graphRangeID, newGraphRange },
+    };
+  };
+  
+  export const updateGraph = (graphUpdateID, GraphData) => ({
+    type: "UPDATE_GRAPH",
+    payload: { graphUpdateID, GraphData },
+  });
+
   export const setTextEditorValue = (value) => ({
     type: "SET_TEXT_EDITOR_VARIABLE",
     payload: value,
