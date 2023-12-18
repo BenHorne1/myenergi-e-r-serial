@@ -5,6 +5,7 @@ import {
   toggleGraph,
   toggleLog,
   toggleTerminal,
+  toggleUDL,
   updateGraph,
   updateLog,
   updateTerminal,
@@ -12,6 +13,7 @@ import {
 import Terminal from "./Widgets/Terminal";
 import Log from "./Widgets/Log";
 import GraphWindow from "./Widgets/Graph/GraphWindow";
+import UDL from "./Widgets/UDL";
 
 // Optional filters to limit what serial ports are returned
 let filters = [{}];
@@ -45,6 +47,10 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
 
   const handleLogToggle = (isChecked) => {
     dispatch(toggleLog(id, isChecked));
+  };
+
+  const handleUDLToggle = (isChecked) => {
+    dispatch(toggleUDL(id, isChecked));
   };
 
   const handleGraphToggle = (isChecked) => {
@@ -140,7 +146,20 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
     // update graph
     if (obj.Data !== undefined) {
       dispatch(updateGraph(id, obj.Data));
-      
+    }
+
+    // update UDL
+    if (obj.UDL !== undefined) {
+      try {
+        let newUDL = "";
+
+        for (let i = 0; i < thisDevice.UDL.length; i++) {
+          if (i + 1 === obj.UDL.y) {
+            thisDevice.UDL[i] = i + 1 + ": " + obj.UDL.text + `\n`;
+          }
+          newUDL += thisDevice.UDL[i] + `\n`;
+        }
+      } catch {}
     }
   }
 
@@ -201,7 +220,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
           />
           &ensp;Custom Display:&ensp;
           <ToggleCheckbox
-            // onToggle={handleUDLToggle}
+            onToggle={handleUDLToggle}
             defaultToggle={thisDevice.showUDL}
           />
           &ensp;Graph:&ensp;
@@ -216,6 +235,7 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
           <Terminal id={id} thisDevice={thisDevice} />
         )}
         {thisDevice.showLog && <Log id={id} thisDevice={thisDevice} />}
+        {thisDevice.showUDL && <UDL id={id} thisDevice={thisDevice} />}
         {thisDevice.showGraph && (
           <GraphWindow id={id} thisDevice={thisDevice} />
         )}

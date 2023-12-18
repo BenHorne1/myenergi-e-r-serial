@@ -34,6 +34,13 @@ export const addDevice = (value) => ({
     };
   };
 
+  export const toggleUDL = (UDLId, newUDLState) => {
+    return {
+      type: "TOGGLE_UDL",
+      payload: { UDLId, newUDLState },
+    };
+  };  
+
   export const toggleGraph = (graphID, newGraphState) => {
     return {
       type: "TOGGLE_GRAPH",

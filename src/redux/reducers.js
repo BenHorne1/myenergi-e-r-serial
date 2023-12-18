@@ -145,6 +145,32 @@ const rootReducer = (state = initialState, action) => {
         deviceList: updatedGraphRange,
       };
 
+    case "TOGGLE_UDL":
+      const { UDLId, newUDLState } = action.payload;
+      const updatedUDLToggle = state.deviceList.map((device) => {
+        if (device.id === UDLId) {
+          return { ...device, showUDL: newUDLState };
+        }
+        return device;
+      });
+      return {
+        ...state,
+        deviceList: updatedUDLToggle,
+      };
+
+    case "UPDATE_UDL":
+      const { UDLUpdateID, newUDLValue } = action.payload;
+      const updatedUDL = state.deviceList.map((device) => {
+        if (device.id === UDLUpdateID) {
+          return { ...device, UDL: newUDLValue };
+        }
+        return device;
+      });
+      return {
+        ...state,
+        deviceList: updatedUDL,
+      };
+
     case "UPDATE_GRAPH":
       const { graphUpdateID, GraphData } = action.payload;
       const updatedGraph = state.deviceList.map((device) => {
