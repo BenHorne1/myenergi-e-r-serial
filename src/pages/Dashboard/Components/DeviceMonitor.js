@@ -141,11 +141,19 @@ const DeviceMonitor = memo(function DeviceMonitor({ id, thisDevice }) {
     // update log
     if (obj.Log !== undefined) {
       dispatch(updateLog(id, timeStr + " >> " + obj.Log + "\n"));
+
+      // update log csv
     }
 
     // update graph
     if (obj.Data !== undefined) {
       dispatch(updateGraph(id, obj.Data));
+
+      // update graph csv
+      window.indexBridge.postMessage("csv:graphData", {
+        graphData: obj.Data,
+        id: id,
+      });
     }
 
     // update UDL

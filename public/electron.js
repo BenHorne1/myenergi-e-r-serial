@@ -1,10 +1,61 @@
 const fs = require("fs");
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
+const { data } = require("autoprefixer");
 
 const isDevMode = process.env.NODE_ENV !== "production";
 
 let mainWindow;
+let saveLocation;
+
+const configPath = getConfigFilePath();
+const congfigPreset = {
+  config: {
+    UDPPort: "8081",
+    SaveLocation: "savelocation",
+  },
+};
+
+function createConfig() {
+  // check if the config file is present
+
+  fs.access(configPath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error("config does not exist");
+      console.log("creating config file");
+      try {
+        fs.writeFileSync(
+          configPath,
+          JSON.stringify(congfigPreset, null, 2),
+          "utf-8"
+        );
+
+        dialog.showMessageBox(mainWindow, {
+          type: "info",
+          message:
+            "Config initialised. Please set directory path to save CSV files to",
+          title: "Config initialised",
+          buttons: ["OK"],
+        });
+      } catch (error) {
+        console.error("Error creating config file: ", error);
+      }
+    } else {
+      console.log("Config Exists");
+    }
+  });
+}
+
+function formatDateToYYYYMMDD(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}${month}${day}`;
+}
+
+const currentDate = new Date();
+const formattedDate = formatDateToYYYYMMDD(currentDate);
 
 function createWindow() {
   const preload = path.join(__dirname, "preload.js");
@@ -88,7 +139,7 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(createWindow);
+app.whenReady().then(createConfig).then(createWindow);
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -110,6 +161,34 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// append to CSV
+function appendToCSV(filePath, csvLine) {
+  console.log("file path ", filePath);
+  fs.appendFile(filePath, csvLine, (err) => {
+    if (err) {
+      console.error("Error writing to CSV file: ", err);
+    } else {
+      console.log("Data appended to CSV file: ", csvLine);
+    }
+  });
+}
+
+// update csv
+ipcMain.on("csv:graphData", (e, data) => {
+  console.log("Graph data ", data);
+
+  const time = new Date();
+  const timeStr = time.toLocaleTimeString();
+
+  let logFileName = formattedDate + "serial_" +  "GraphData.csv";
+
+  console.log(logFileName);
+  appendToCSV(
+    saveLocation + "\\" + logFileName,
+    `${timeStr},${data.graphData.v1},${data.graphData.v2},${data.graphData.v3},${data.graphData.v4},\n`
+  );
+});
 
 // Update config.json
 
@@ -138,7 +217,8 @@ function loadConfig() {
 
   try {
     const data = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    saveLocation = data.config.saveLocation;
+ 
+    saveLocation = data.config.SaveLocation;
     return data;
   } catch (error) {
     if (error.code === "ENOENT") {
@@ -151,8 +231,8 @@ function loadConfig() {
 }
 
 ipcMain.on("SAVE_CONFIG", (e, data) => {
-  saveConfig(data)
-})
+  saveConfig(data);
+});
 
 ipcMain.handle("loadConfig", () => {
   try {
@@ -160,7 +240,7 @@ ipcMain.handle("loadConfig", () => {
 
     const data = loadConfig();
     console.log("loading config data ", data);
-    return data
+    return data;
   } catch (error) {
     return error.message;
   }
